@@ -1,8 +1,10 @@
 #include <iostream>
-#import  <istream>
-#import <fstream>
+#include <istream>
+#include <fstream>
 #include <vector>
-#import <cstring>
+#include "Command.h"
+#include "implemets.h"
+#include <unordered_map>
 
 using namespace std;
 
@@ -61,10 +63,35 @@ void lexer(ifstream &file,vector<string>& arr){
     }
 
 }
+void initializeMap(unordered_map<string,Command>& map){
+    map["openDataServer"] = openServerCommand();
+    map["connectControlClient"] = ConnectCommand();
+    map["var"] = DefineVarCommand();
+    map["while"] = LoopCommand();
+    map["Print"] = PrintCommand();
+    map["Sleep"] = SleepCommand();
+
+
+}
 int main(int args, char* argv[]) {
+    int index=0;
     ifstream infile(argv[1]);
     vector<string> arr;
     lexer(infile,arr);
-    printf("hello");
+    unordered_map<string, Command> map;
+    initializeMap(map);
+    while (index <arr.size()){
+        try {
+            Command c = map[arr[index]];
+            index++;
+
+            index += c.execute(index,arr,map);
+
+        } catch (exception){
+
+        }
+
+    }
+    cout<< arr[0]<<endl;
     return 0;
 }
