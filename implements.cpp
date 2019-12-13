@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include "implemets.h"
+#include <vector>
 
 using namespace std;
 
@@ -79,26 +80,67 @@ int server_run(int argc, char const *argv[]) {
 
 
 
-int openServerCommand‬‬::execute(int index, string tokens[]) {
-
-    port = std::atoi(tokens[index]);
+int openServerCommand‬‬::execute(int index, vector<string>& tokens, map<string, int> variables) {
+    const char *c = tokens[index].c_str();
+    int port = std::atoi(c);
     std::thread thread_object(server_run);
     thread_object.join();
     return 2;
 }
 
-int LoopCommand::execute() {
-    while (this->condition.execute()){
+int LoopCommand::execute(int index, vector<string>& tokens, map<string, int> variables) {
+
+    while (this->condition.execute(index, tokens)){
         for(auto itr : this->commands ) {
-            itr.execute();
+            itr.execute(index, tokens);
         }
     }
 }
 
-int IfCommand::execute() {
-    if(this->condition.execute()) {
+int IfCommand::execute(int index, vector<string>& tokens, map<string, int> variables) {
+    int operatpr_index = index, condition = 0;
+    while (tokens[operatpr_index] != ">" && tokens[operatpr_index] != ">=" && tokens[operatpr_index] != "<=" &&
+           tokens[operatpr_index] != "<" && tokens[operatpr_index] != "!=" && tokens[operatpr_index] != "==" ) {
+        operatpr_index++;
+    }
+    if (tokens[operatpr_index] == ">") {
+        if(>) {
+            condition = 1;
+        }
+    }
+    else if (tokens[operatpr_index] == ">=") {
+        if(>=) {
+            condition = 1;
+        }
+
+    }
+    else if (tokens[operatpr_index] == "<") {
+        if(<) {
+            condition = 1;
+        }
+
+    }
+    else if (tokens[operatpr_index] == "<=") {
+        if(<=) {
+            condition = 1;
+        }
+
+    }
+    else if (tokens[operatpr_index] == "==") {
+        if(==) {
+            condition = 1;
+        }
+
+    }
+    else if (tokens[operatpr_index] == "!=") {
+        if(!=) {
+            condition = 1;
+        }
+
+    }
+    if() {
         for(auto itr : this->commands ) {
-            itr.execute();
+            itr.execute(index, tokens);
         }
     }
 }
