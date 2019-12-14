@@ -11,6 +11,7 @@
 #include <netinet/in.h>
 #include "implemets.h"
 #include <vector>
+#include <unordered_map>
 
 using namespace std;
 
@@ -80,7 +81,7 @@ int server_run(int argc, char const *argv[]) {
 
 
 
-int openServerCommand‬‬::execute(int index, vector<string>& tokens, map<string, int> variables) {
+int openServerCommand‬‬::execute(int index, vector<string>& tokens, unordered_map<string, Variable> variables) {
     const char *c = tokens[index].c_str();
     int port = std::atoi(c);
     std::thread thread_object(server_run);
@@ -88,57 +89,59 @@ int openServerCommand‬‬::execute(int index, vector<string>& tokens, map<stri
     return 2;
 }
 
-int LoopCommand::execute(int index, vector<string>& tokens, map<string, int> variables) {
+int LoopCommand::execute(int index, vector<string>& tokens, unordered_map<string, Variable> variables) {
 
-    while (this->condition.execute(index, tokens)){
+    while ()){
         for(auto itr : this->commands ) {
             itr.execute(index, tokens);
         }
     }
 }
 
-int IfCommand::execute(int index, vector<string>& tokens, map<string, int> variables) {
+int IfCommand::execute(int index, vector<string>& tokens, unordered_map<string, Variable> variables) {
+    int var1 = variables.at(tokens[index]).getValue(), var2 = variables.at(tokens[index + 2]).getValue();
+    //finding the operrator location(index)
     int operatpr_index = index, condition = 0;
     while (tokens[operatpr_index] != ">" && tokens[operatpr_index] != ">=" && tokens[operatpr_index] != "<=" &&
            tokens[operatpr_index] != "<" && tokens[operatpr_index] != "!=" && tokens[operatpr_index] != "==" ) {
         operatpr_index++;
     }
     if (tokens[operatpr_index] == ">") {
-        if(>) {
+        if(var1 > var2) {
             condition = 1;
         }
     }
     else if (tokens[operatpr_index] == ">=") {
-        if(>=) {
+        if(var1 >= var2) {
             condition = 1;
         }
 
     }
     else if (tokens[operatpr_index] == "<") {
-        if(<) {
+        if(var1 < var2) {
             condition = 1;
         }
 
     }
     else if (tokens[operatpr_index] == "<=") {
-        if(<=) {
+        if(var1 <= var2) {
             condition = 1;
         }
 
     }
     else if (tokens[operatpr_index] == "==") {
-        if(==) {
+        if(var1 == var2) {
             condition = 1;
         }
 
     }
     else if (tokens[operatpr_index] == "!=") {
-        if(!=) {
+        if(var1 != var2) {
             condition = 1;
         }
 
     }
-    if() {
+    if(condition) {
         for(auto itr : this->commands ) {
             itr.execute(index, tokens);
         }
