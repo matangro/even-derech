@@ -89,63 +89,98 @@ int openServerCommand‬‬::execute(int index, vector<string>& tokens, unordere
     return 2;
 }
 
+
+int DefineVarCommand::execute(int index, vector<string> &tokens, unordered_map<string, Variable> variables) {
+    index++;
+    if(tokens[index +1].compare("->")) {
+        variables.insert({tokens[index], Variable(1, tokens[index], tokens[index +3])});
+    } else {//"<-"
+        variables.insert({tokens[index], Variable(0, tokens[index], tokens[index +3])});
+    }
+    return 5;
+}
+int UpdateVarCommand::execute(int index, vector<string> &tokens, unordered_map<string, Variable> variables) {
+    string str =tokens[index];
+    const char* val = tokens[index +2].c_str();
+    if(variables.find(str) != (variables.end())){
+        variables[str].setValue(atoi(val));
+    }
+    return 3;
+}
+
+
 int LoopCommand::execute(int index, vector<string>& tokens, unordered_map<string, Variable> variables) {
 
-    while ()){
-        for(auto itr : this->commands ) {
-            itr.execute(index, tokens);
+    int index1 = index;
+    IfCommand* ifCommand = new IfCommand();
+
+    while (index1 = ifCommand->execute(index,tokens,variables)){
         }
-    }
+
+    return index1;
 }
 
 int IfCommand::execute(int index, vector<string>& tokens, unordered_map<string, Variable> variables) {
+    int flag = 0;
+    if(tokens[index].compare("while")){
+        flag = 1;
+    }
+    index++;
     int var1 = variables.at(tokens[index]).getValue(), var2 = variables.at(tokens[index + 2]).getValue();
-    //finding the operrator location(index)
+    //finding the operator location(index)
     int operatpr_index = index, condition = 0;
     while (tokens[operatpr_index] != ">" && tokens[operatpr_index] != ">=" && tokens[operatpr_index] != "<=" &&
            tokens[operatpr_index] != "<" && tokens[operatpr_index] != "!=" && tokens[operatpr_index] != "==" ) {
         operatpr_index++;
     }
+
+    if(checkCon(operatpr_index, tokens, variables, var1, var2)) {
+        int progress = 0;
+        for(auto itr : this->commands ) {
+            progress += itr.execute(index, tokens, variables);
+        }
+        return progress*10 + 1;
+    }
+    return 0;
+}
+
+bool IfCommand::checkCon(int operatpr_index, vector<string> &tokens, unordered_map<string, Variable> variables
+        , int var1, int var2) {
     if (tokens[operatpr_index] == ">") {
         if(var1 > var2) {
-            condition = 1;
+            return true;
         }
     }
     else if (tokens[operatpr_index] == ">=") {
         if(var1 >= var2) {
-            condition = 1;
+            return true;
         }
 
     }
     else if (tokens[operatpr_index] == "<") {
         if(var1 < var2) {
-            condition = 1;
+            return true;
         }
 
     }
     else if (tokens[operatpr_index] == "<=") {
         if(var1 <= var2) {
-            condition = 1;
+            return true;
         }
 
     }
     else if (tokens[operatpr_index] == "==") {
         if(var1 == var2) {
-            condition = 1;
+            return true;
         }
 
     }
     else if (tokens[operatpr_index] == "!=") {
         if(var1 != var2) {
-            condition = 1;
-        }
-
-    }
-    if(condition) {
-        for(auto itr : this->commands ) {
-            itr.execute(index, tokens);
+            return true;
         }
     }
+    return false;
 }
 
 

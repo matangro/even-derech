@@ -13,7 +13,6 @@
 #include "Variable.h"
 
 class openServerCommand‬‬: public Command {
-    int port;
 public:
     int execute(int index, vector<string>& tokens, unordered_map<string, Variable> variables);
 };
@@ -24,6 +23,11 @@ public:
 };
 
 class DefineVarCommand: public Command {
+public:
+    int execute(int index, vector<string>& tokens, unordered_map<string, Variable> variables);
+};
+
+class UpdateVarCommand: public Command {
 public:
     int execute(int index, vector<string>& tokens, unordered_map<string, Variable> variables);
 };
@@ -48,10 +52,12 @@ public:
 class LoopCommand: public ConditionParser{
 public:
     int execute(int index, vector<string>& tokens, unordered_map<string, Variable> variables);
+
 };
 class  IfCommand: public ConditionParser {
 public:
     int execute(int index, vector<string>& tokens, unordered_map<string, Variable> variables);
+    bool checkCon(int index, vector<string>& tokens, unordered_map<string, Variable> variables, int var1, int var2);
 };
 
 

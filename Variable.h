@@ -10,11 +10,14 @@ class Variable {
     int value, inOrOut;
     string name,sim;
 public:
-    Variable(int val,int iOu, string n, string s) {
+    Variable(int iOu, string n, string s) {
         this->name = name;
-        this->value = val;
+        this->value = 0;
         this->sim = s;
         this->inOrOut = iOu;
+    }
+    void setValue(int val) {
+        this->value = val;
     }
     int getValue(){
         return this->value;
