@@ -4,6 +4,7 @@
 #include <vector>
 #include "Command.h"
 #include "implemets.h"
+#include "SingleMapOfVar.h"
 #include <unordered_map>
 
 using namespace std;
@@ -63,34 +64,37 @@ void lexer(ifstream &file,vector<string>& arr){
     }
 
 }
-void initializeMap(unordered_map<string,Command>& map){
-    map["openDataServer"] = openServerCommand();
-    map["connectControlClient"] = ConnectCommand();
-    map["var"] = DefineVarCommand();
-    map["while"] = LoopCommand();
-    map["Print"] = PrintCommand();
-    map["Sleep"] = SleepCommand();
-
+void initializeMap(unordered_map<string, Command>* map){
+    (*map)["openDataServer"] = openServerCommand();
+    (*map)["connectControlClient"] = ConnectCommand();
+    (*map)["Var"] = DefineVarCommand();
+    (*map)["while"] = LoopCommand();
+    (*map)["Print"] = PrintCommand();
+    (*map)["Sleep"] = SleepCommand();
 
 }
+int parser(int index, vector<string> arr, unordered_map<string, Variable>& mapOfVar ) {
+    Command c;
+    unordered_map<string, Command>* map= SingleMapOfVar::getInstance();
+    if(map->find(arr[index]) != map->end()){
+        c = (*map)[arr[index]];
+        return c.execute(index,arr,mapOfVar);
+    } else{
+        c = UpdateVarCommand();
+        return c.execute(index,arr,mapOfVar);
+    }
+}
 int main(int args, char* argv[]) {
-    int index=0;
+    int index=0,i;
+    Command c;
     ifstream infile(argv[1]);
     vector<string> arr;
     lexer(infile,arr);
-    unordered_map<string, Command> map;
+    unordered_map<string, Command>* map= SingleMapOfVar::getInstance();
     initializeMap(map);
+    unordered_map<string,Variable> mapOfVar;
     while (index <arr.size()){
-        try {
-            Command c = map[arr[index]];
-            index++;
-
-            index += c.execute(index,arr,map);
-
-        } catch (exception){
-
-        }
-
+        index += parser(index, arr, mapOfVar);
     }
     cout<< arr[0]<<endl;
     return 0;

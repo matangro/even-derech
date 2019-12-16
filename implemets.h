@@ -12,7 +12,7 @@
 #include <unordered_map>
 #include "Variable.h"
 
-class openServerCommand‬‬: public Command {
+class openServerCommand: public Command {
 public:
     int execute(int index, vector<string>& tokens, unordered_map<string, Variable> variables);
 };
