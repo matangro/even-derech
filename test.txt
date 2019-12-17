@@ -1,0 +1,5 @@
+var alt <- sim("/instrumentation/altimeter/indicated-altitude-ft")
+alt = 998
+while alt < 1000 {
+	alt = alt +1
+}
