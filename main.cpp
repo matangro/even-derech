@@ -1,8 +1,11 @@
 #include <iostream>
-#import  <istream>
-#import <fstream>
+#include <istream>
+#include <fstream>
 #include <vector>
-#import <cstring>
+#include "Command.h"
+#include "implemets.h"
+#include "SingleMapOfVar.h"
+#include <unordered_map>
 
 using namespace std;
 
@@ -53,6 +56,19 @@ void lexer(ifstream &file,vector<string>& arr){
                j = j + k + 2;
 
 
+           } else if(line[i] == '='){
+               if((line[i-1] != '<')&&(line[i-1]!= '>')){
+                   if((line[i+1] != '<')&&(line[i+1]!= '>')) {
+
+                       arr.push_back(line.substr(i,2));
+                       arr.push_back(line.substr(i+2, (length - i-2)));
+
+
+                       i=length;
+                       j=i+1;
+
+                   }
+               }
            }
        }
        if(j!=i){
@@ -61,10 +77,45 @@ void lexer(ifstream &file,vector<string>& arr){
     }
 
 }
+void initializeMap(unordered_map<string, Command>* map){
+    (*map)["openDataServer"] = openServerCommand();
+    (*map)["connectControlClient"] = ConnectCommand();
+    (*map)["Var"] = DefineVarCommand();
+    (*map)["while"] = LoopCommand();
+    (*map)["Print"] = PrintCommand();
+    (*map)["Sleep"] = SleepCommand();
+
+}
+int parser(int index, vector<string> arr, unordered_map<string, Variable>& mapOfVar ) {
+    Command c;
+    unordered_map<string, Command>* map= SingleMapOfVar::getInstance();
+    if(map->find(arr[index]) != map->end()){
+        c = (*map)[arr[index]];
+        return c.execute(index,arr,mapOfVar);
+    } else{
+        c = UpdateVarCommand();
+        return c.execute(index,arr,mapOfVar);
+    }
+}
 int main(int args, char* argv[]) {
+    int index=0,i;
+    Command c;
     ifstream infile(argv[1]);
     vector<string> arr;
     lexer(infile,arr);
-    printf("hello");
+    unordered_map<string, Command>* map= SingleMapOfVar::getInstance();
+    initializeMap(map);
+    unordered_map<string,Variable> mapOfVar;
+    ofstream file;
+    file.open("demo.txt");
+    for (i =0; i<arr.size(); i++) {
+        // s = arr[i];
+        file << arr[i] + "\n";
+
+    }
+    while (index <arr.size()){
+        index += parser(index, arr, mapOfVar);
+    }
+    cout<< arr[0]<<endl;
     return 0;
 }
