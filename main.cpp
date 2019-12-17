@@ -108,7 +108,7 @@ int main(int args, char* argv[]) {
     unordered_map<string,Variable> mapOfVar;
     ofstream file;
     file.open("demo.txt");
-    for (int i =0; i<arr.size(); i++) {
+    for (i =0; i<arr.size(); i++) {
         // s = arr[i];
         file << arr[i] + "\n";
 
