@@ -10,7 +10,7 @@
 
 class SingleMapOfVar {
 private:
-    static unordered_map<string, Command>* map;
+    static unordered_map<string, Command*>* map;
     static int num;
 
 
@@ -20,7 +20,7 @@ private:
 
 public:
     /* Static access method. */
-    static unordered_map<string, Command>* getInstance();
+    static unordered_map<string, Command*>* getInstance();
 
 };
 
