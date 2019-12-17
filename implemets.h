@@ -43,9 +43,6 @@ public:
 };
 
 class ConditionParser: public Command{
-protected:
-    list<Command> commands;//the commands between the {} of the while loop
-    Command condition;//is a command with boolean execute
 public:
     int execute(int index, vector<string>& tokens, unordered_map<string, Variable> variables);
 };

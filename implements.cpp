@@ -112,11 +112,11 @@ int UpdateVarCommand::execute(int index, vector<string> &tokens, unordered_map<s
 
 int LoopCommand::execute(int index, vector<string>& tokens, unordered_map<string, Variable> variables) {
 
-    int index1 = index;
+    int index1 = index, progress;
     IfCommand* ifCommand = new IfCommand();
 
-    while (index1 = ifCommand->execute(index,tokens,variables)){
-        index += 0/**כאן נכניס את פלט הפונקציה שיוצרת את רשימת ה-commands ל-while שהוא בעצם התקדמות הindex לאחר קריאת כל הפקודות**/;
+    while (progress = ifCommand->execute(index,tokens,variables)){
+        index += progress / 10 - 1;/**כאן נכניס את פלט הפונקציה שיוצרת את רשימת ה-commands ל-while שהוא בעצם התקדמות הindex לאחר קריאת כל הפקודות**/;
         }
 
     return index1;
@@ -142,7 +142,7 @@ int IfCommand::execute(int index, vector<string>& tokens, unordered_map<string, 
         for(auto itr : comands /**לרוץ על רשימת הפקודות שבבלוק**/) {
             progress += itr.execute(index, tokens, variables);
         }
-        return progress*10 + 1;
+        return progress * 10 + 1;
     }
     return 0;
 }
