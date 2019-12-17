@@ -12,6 +12,7 @@
 #include "implemets.h"
 #include <vector>
 #include <unordered_map>
+#include <list>
 
 using namespace std;
 
@@ -115,12 +116,14 @@ int LoopCommand::execute(int index, vector<string>& tokens, unordered_map<string
     IfCommand* ifCommand = new IfCommand();
 
     while (index1 = ifCommand->execute(index,tokens,variables)){
+        index += 0/**כאן נכניס את פלט הפונקציה שיוצרת את רשימת ה-commands ל-while שהוא בעצם התקדמות הindex לאחר קריאת כל הפקודות**/;
         }
 
     return index1;
 }
 
 int IfCommand::execute(int index, vector<string>& tokens, unordered_map<string, Variable> variables) {
+    list<Command> comands;/**נכניס את הרשימה לפונקציה שתמלא אותה ב-commands**/
     int flag = 0;
     if(tokens[index].compare("while")){
         flag = 1;
@@ -136,7 +139,7 @@ int IfCommand::execute(int index, vector<string>& tokens, unordered_map<string, 
 
     if(checkCon(operatpr_index, tokens, variables, var1, var2)) {
         int progress = 0;
-        for(auto itr : this->commands ) {
+        for(auto itr : comands /**לרוץ על רשימת הפקודות שבבלוק**/) {
             progress += itr.execute(index, tokens, variables);
         }
         return progress*10 + 1;
