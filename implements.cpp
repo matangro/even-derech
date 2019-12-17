@@ -81,16 +81,16 @@ int server_run(int argc, char const *argv[]) {
 
 
 
-int openServerCommand‬‬::execute(int index, vector<string>& tokens, unordered_map<string, Variable> variables) {
+int openServerCommand::execute(int index, vector<string>& tokens, unordered_map<string, Variable>& variables) {
     const char *c = tokens[index].c_str();
     int port = std::atoi(c);
-    std::thread thread_object(server_run);
-    thread_object.join();
+    //std::thread thread_object(server_run);
+    //thread_object.join();
     return 2;
 }
 
 
-int DefineVarCommand::execute(int index, vector<string> &tokens, unordered_map<string, Variable> variables) {
+int DefineVarCommand::execute(int index, vector<string> &tokens, unordered_map<string, Variable>& variables) {
     index++;
     if(tokens[index +1].compare("->")) {
         variables.insert({tokens[index], Variable(1, tokens[index], tokens[index +3])});
@@ -99,17 +99,17 @@ int DefineVarCommand::execute(int index, vector<string> &tokens, unordered_map<s
     }
     return 5;
 }
-int UpdateVarCommand::execute(int index, vector<string> &tokens, unordered_map<string, Variable> variables) {
+int UpdateVarCommand::execute(int index, vector<string> &tokens, unordered_map<string, Variable>& variables) {
     string str =tokens[index];
     const char* val = tokens[index +2].c_str();
     if(variables.find(str) != (variables.end())){
-        variables[str].setValue(atoi(val));
+        //variables[str].setValue(atoi(val));
     }
     return 3;
 }
 
 
-int LoopCommand::execute(int index, vector<string>& tokens, unordered_map<string, Variable> variables) {
+int LoopCommand::execute(int index, vector<string>& tokens, unordered_map<string, Variable>& variables) {
 
     int index1 = index;
     IfCommand* ifCommand = new IfCommand();
@@ -120,7 +120,7 @@ int LoopCommand::execute(int index, vector<string>& tokens, unordered_map<string
     return index1;
 }
 
-int IfCommand::execute(int index, vector<string>& tokens, unordered_map<string, Variable> variables) {
+int IfCommand::execute(int index, vector<string>& tokens, unordered_map<string, Variable>& variables) {
     int flag = 0;
     if(tokens[index].compare("while")){
         flag = 1;
@@ -136,15 +136,15 @@ int IfCommand::execute(int index, vector<string>& tokens, unordered_map<string, 
 
     if(checkCon(operatpr_index, tokens, variables, var1, var2)) {
         int progress = 0;
-        for(auto itr : this->commands ) {
+        /*for(auto itr : this->commands ) {
             progress += itr.execute(index, tokens, variables);
-        }
+        }*/
         return progress*10 + 1;
     }
     return 0;
 }
 
-bool IfCommand::checkCon(int operatpr_index, vector<string> &tokens, unordered_map<string, Variable> variables
+bool IfCommand::checkCon(int operatpr_index, vector<string> &tokens, unordered_map<string, Variable>& variables
         , int var1, int var2) {
     if (tokens[operatpr_index] == ">") {
         if(var1 > var2) {
@@ -183,4 +183,12 @@ bool IfCommand::checkCon(int operatpr_index, vector<string> &tokens, unordered_m
     return false;
 }
 
+int PrintCommand::execute(int index, vector<string>& tokens, unordered_map<string, Variable>& variables){
+    return 0;
+}
+int SleepCommand::execute(int index, vector<string>& tokens, unordered_map<string, Variable>& variables){
 
+}
+int ConnectCommand::execute(int index, vector<string>& tokens, unordered_map<string, Variable>& variables){
+
+}

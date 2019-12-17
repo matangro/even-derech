@@ -5,6 +5,7 @@
 #include "SingleMapOfVar.h"
 SingleMapOfVar::SingleMapOfVar() = default;
 int SingleMapOfVar::num = 0;
+unordered_map<string, Command> * SingleMapOfVar::map = 0;
  unordered_map<string, Command>* SingleMapOfVar::getInstance()
 {
      if(num == 0){

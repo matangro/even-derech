@@ -56,6 +56,19 @@ void lexer(ifstream &file,vector<string>& arr){
                j = j + k + 2;
 
 
+           } else if(line[i] == '='){
+               if((line[i-1] != '<')&&(line[i-1]!= '>')){
+                   if((line[i+1] != '<')&&(line[i+1]!= '>')) {
+
+                       arr.push_back(line.substr(i,2));
+                       arr.push_back(line.substr(i+2, (length - i-2)));
+
+
+                       i=length;
+                       j=i+1;
+
+                   }
+               }
            }
        }
        if(j!=i){
@@ -93,6 +106,14 @@ int main(int args, char* argv[]) {
     unordered_map<string, Command>* map= SingleMapOfVar::getInstance();
     initializeMap(map);
     unordered_map<string,Variable> mapOfVar;
+    ofstream file;
+    file.open("demo.txt");
+
+    for (int i =0; i<arr.size(); i++) {
+        // s = arr[i];
+        file << arr[i] + "\n";
+
+    }
     while (index <arr.size()){
         index += parser(index, arr, mapOfVar);
     }
