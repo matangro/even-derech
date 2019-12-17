@@ -5,11 +5,11 @@
 #include "SingleMapOfVar.h"
 SingleMapOfVar::SingleMapOfVar() = default;
 int SingleMapOfVar::num = 0;
-unordered_map<string, Command> * SingleMapOfVar::map = 0;
- unordered_map<string, Command>* SingleMapOfVar::getInstance()
+unordered_map<string, Command*> * SingleMapOfVar::map = 0;
+ unordered_map<string, Command*>* SingleMapOfVar::getInstance()
 {
      if(num == 0){
-         map = new unordered_map<string, Command>();
+         map = new unordered_map<string, Command*>();
          num++;
      }
     return (SingleMapOfVar::map);

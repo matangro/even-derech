@@ -12,7 +12,7 @@ using namespace std;
 
 class Command {
 public:
-    virtual int execute(int index, vector<string>& tokens, unordered_map<string, Variable>& variables){}
+    virtual int execute(int index, vector<string>& tokens, unordered_map<string, Variable>& variables)=0;
 };
 
 #endif //EX3_COMMAND_H
