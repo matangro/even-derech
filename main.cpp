@@ -87,23 +87,23 @@ void initializeMap(unordered_map<string, Command*>* map){
 
 }
 int parser(int index, vector<string> arr, unordered_map<string, Variable>& mapOfVar ) {
-    Command c;
-    unordered_map<string, Command>* map= SingleMapOfVar::getInstance();
+    Command* c;
+    unordered_map<string, Command*>* map= SingleMapOfVar::getInstance();
     if(map->find(arr[index]) != map->end()){
         c = (*map)[arr[index]];
-        return c.execute(index,arr,mapOfVar);
+        return c->execute(index,arr,mapOfVar);
     } else{
-        c = UpdateVarCommand();
-        return c.execute(index,arr,mapOfVar);
+        c = new UpdateVarCommand();
+        return c->execute(index,arr,mapOfVar);
     }
 }
 int main(int args, char* argv[]) {
     int index=0,i;
-    Command c;
+    Command* c;
     ifstream infile(argv[1]);
     vector<string> arr;
     lexer(infile,arr);
-    unordered_map<string, Command>* map= SingleMapOfVar::getInstance();
+    unordered_map<string, Command*>* map= SingleMapOfVar::getInstance();
     initializeMap(map);
     unordered_map<string,Variable> mapOfVar;
     ofstream file;

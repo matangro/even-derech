@@ -20,7 +20,6 @@ void  SingleMapOfVar::initializeMap(unordered_map<string, Command*>* map) {
      if(num == 0){
          map = new unordered_map<string, Command*>();
             initializeMap(map);
-         map = new unordered_map<string, Command*>();
          num++;
      }
     return map;
