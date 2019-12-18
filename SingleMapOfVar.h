@@ -7,12 +7,13 @@
 #include <unordered_map>
 #include "Command.h"
 #include "Variable.h"
-
+#include "implemets.h"
 class SingleMapOfVar {
 private:
     static unordered_map<string, Command*>* map;
     static int num;
 
+    void static initializeMap(unordered_map<string, Command*>* map);
 
 
     /* Private constructor to prevent instancing. */
