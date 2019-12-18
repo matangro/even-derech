@@ -1,0 +1,5 @@
+var rudder -> sim("/controls/flight/rudder")
+var heading <- sim("/instrumentation/heading-indicator/offset-deg")
+heading = 80
+var h0 = heading
+rudder = (h0 - heading)/80
