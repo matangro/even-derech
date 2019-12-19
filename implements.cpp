@@ -2,7 +2,7 @@
 // Created by itay on 12/12/19.
 //
 
-#include <thread>
+//#include <thread>
 #include <iostream>
 #include <sys/socket.h>
 #include <string>
@@ -12,7 +12,8 @@
 #include "implemets.h"
 #include <vector>
 #include <unordered_map>
-
+#include "Expression.h"
+#include "ex1.h"
 using namespace std;
 
 
@@ -92,18 +93,36 @@ int openServerCommand::execute(int index, vector<string>& tokens, unordered_map<
 
 int DefineVarCommand::execute(int index, vector<string> &tokens, unordered_map<string, Variable>& variables) {
     index++;
-    if(tokens[index +1].compare("->")) {
+    double c =0;
+    if(!(tokens[index +1].compare("->"))) {
         variables.insert({tokens[index], Variable(1, tokens[index], tokens[index +3])});
-    } else {//"<-"
+    } else if(!(tokens[index +1].compare("<-"))) {//"<-"
         variables.insert({tokens[index], Variable(0, tokens[index], tokens[index +3])});
+    }else {
+        string s = tokens[index + 2];
+        if (variables.find(s) != variables.end()) {
+            Variable a = variables.at(s);
+            c = a.getValue();
+        } else {
+            const char * s1 = s.c_str();
+          //  c = atoi(s1);
+          c = strtol(s1,NULL, 10);
+        }
+        variables.insert({tokens[index], Variable( tokens[index], c)});
+        return 4;
     }
     return 5;
 }
 int UpdateVarCommand::execute(int index, vector<string> &tokens, unordered_map<string, Variable>& variables) {
     string str =tokens[index];
     const char* val = tokens[index +2].c_str();
+    Interpreter* i1 = new Interpreter();
+    i1->setMap(variables);
+    Expression* e4 = nullptr;
+    e4 = i1->interpret(val);
+    double temp = e4->calculate();
     if(variables.find(str) != (variables.end())){
-        //variables[str].setValue(atoi(val));
+        variables.at(str).setValue(temp);
     }
     return 3;
 }
@@ -190,5 +209,14 @@ int SleepCommand::execute(int index, vector<string>& tokens, unordered_map<strin
 
 }
 int ConnectCommand::execute(int index, vector<string>& tokens, unordered_map<string, Variable>& variables){
+    int flag =0;
+    if(!tokens[index].compare("connectControlClient")){
+        index++;
+        flag++;
+    }
+    string ip = tokens[index];
+    string port = tokens[index];
 
+
+    return 2+flag;
 }

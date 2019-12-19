@@ -80,7 +80,7 @@ void lexer(ifstream &file,vector<string>& arr){
 void initializeMap(unordered_map<string, Command*>* map){
     (*map)["openDataServer"] = new openServerCommand();
     (*map)["connectControlClient"] =new ConnectCommand();
-    (*map)["Var"] = new DefineVarCommand();
+    (*map)["var"] = new DefineVarCommand();
     (*map)["while"] =new LoopCommand();
     (*map)["Print"] = new PrintCommand();
     (*map)["Sleep"] = new SleepCommand();
@@ -107,12 +107,14 @@ int main(int args, char* argv[]) {
     initializeMap(map);
     unordered_map<string,Variable> mapOfVar;
     ofstream file;
+    /*
     file.open("demo.txt");
     for (i =0; i<arr.size(); i++) {
         // s = arr[i];
         file << arr[i] + "\n";
 
     }
+    */
     while (index <arr.size()){
         index += parser(index, arr, mapOfVar);
     }
