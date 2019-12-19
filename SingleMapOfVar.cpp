@@ -5,6 +5,7 @@
 #include "SingleMapOfVar.h"
 SingleMapOfVar::SingleMapOfVar() = default;
 int SingleMapOfVar::num = 0;
+bool SingleMapOfVar::endOfProg = false;
 stack<string>* SingleMapOfVar::stack1 = nullptr;
 unordered_map<string, Command*> * SingleMapOfVar::map = 0;
 void  SingleMapOfVar::initializeMap(unordered_map<string, Command*>* map) {
@@ -41,3 +42,17 @@ int SingleMapOfVar::pushTostack(string str) {
         return 1;
     }
 }
+bool SingleMapOfVar::getBool() {
+
+    return endOfProg;
+}
+void SingleMapOfVar::setBool(bool s) {
+ endOfProg = s;
+}
+unordered_map<string,Variable>* SingleMapOfVar::getMap(){
+    return (SingleMapOfVar::mapOfVar);
+}
+void SingleMapOfVar::setMap(unordered_map<string,Variable>& map1) {
+    *mapOfVar = map1;
+}
+unordered_map<string,Variable>* SingleMapOfVar::mapOfVar = 0;

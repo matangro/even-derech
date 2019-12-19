@@ -20,6 +20,7 @@ public:
 
 class ConnectCommand: public Command {
 public:
+   //static void client(int args, char argv[]);
     int execute(int index, vector<string>& tokens, unordered_map<string, Variable>& variables) override ;
 };
 
