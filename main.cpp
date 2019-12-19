@@ -6,10 +6,12 @@
 #include "implemets.h"
 #include "SingleMapOfVar.h"
 #include <unordered_map>
+#include <mutex>
 
 using namespace std;
 
-
+mutex clientStart;
+mutex closeThered;
 int parenth(string line,int index, vector<string> &arr) {
     int j,flag =0,i;
         for (j=index+1;j<line.length();j++) {
@@ -106,8 +108,16 @@ int main(int args, char* argv[]) {
     unordered_map<string, Command*>* map= SingleMapOfVar::getInstance();
     initializeMap(map);
     unordered_map<string,Variable> mapOfVar;
+    mutex startServer;
+    while (index <arr.size()){
+        index += parser(index, arr, mapOfVar);
+    }
+    cout<< arr[0]<<endl;
+    return 0;
+}
+
+/*
     ofstream file;
-    /*
     file.open("demo.txt");
     for (i =0; i<arr.size(); i++) {
         // s = arr[i];
@@ -115,9 +125,3 @@ int main(int args, char* argv[]) {
 
     }
     */
-    while (index <arr.size()){
-        index += parser(index, arr, mapOfVar);
-    }
-    cout<< arr[0]<<endl;
-    return 0;
-}

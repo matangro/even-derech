@@ -10,9 +10,13 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include "implemets.h"
+#include "SingleMapOfVar.h"
 #include <vector>
 #include <unordered_map>
+#include <stack>
 #include "Expression.h"
+#include <thread>
+#include <mutex>
 #include "ex1.h"
 using namespace std;
 
@@ -123,7 +127,11 @@ int UpdateVarCommand::execute(int index, vector<string> &tokens, unordered_map<s
     double temp = e4->calculate();
     if(variables.find(str) != (variables.end())){
         variables.at(str).setValue(temp);
+        if(variables.at(str).getInOrOut() == 1) {
+            SingleMapOfVar::pushTostack(str);
+        }
     }
+
     return 3;
 }
 
@@ -215,8 +223,41 @@ int ConnectCommand::execute(int index, vector<string>& tokens, unordered_map<str
         flag++;
     }
     string ip = tokens[index];
-    string port = tokens[index];
+    string port = tokens[index+1];
+    int numOfPort = stoi(port);
 
 
     return 2+flag;
+}
+
+int client(string ip, int port,unordered_map<string, Variable>& variables){
+    stack<string>* sta = SingleMapOfVar::getStack();
+
+    int socketfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (socketfd == -1) {
+        //error
+        std::cerr << "Could not create a socket" << std::endl;
+        return -1;
+    }
+    sockaddr_in address; //in means IP4
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY; //give me any IP allocated for my machine
+    address.sin_port = htons(port);
+    if( connect(socketfd, (struct sockaddr*)&address, sizeof(address)) <0) {
+        cout<<"can't connect to sim"<< endl;
+    }
+    while (true) {
+        if(sta->empty()) {
+            this_thread::sleep_for(10ms);
+        } else{
+            string nameOfVar = sta->top();
+            sta->pop();
+            Variable b = variables.at(nameOfVar);
+            string temp = to_string(b.getValue());
+            string massage = "set" + b.getSim() + temp ;
+            send(socketfd, massage.c_str(), massage.size(), 0);
+        }
+        if(mutex closeThered );
+    }
+
 }
