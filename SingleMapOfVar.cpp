@@ -24,3 +24,19 @@ void  SingleMapOfVar::initializeMap(unordered_map<string, Command*>* map) {
      }
     return map;
 }
+ ::stack<string>* SingleMapOfVar::getStack() {
+    if(stack == nullptr) {
+       stack = new ::stack<string>();
+    }
+    return stack;
+}
+int SingleMapOfVar::pushTostack(string str) {
+    if (stack == nullptr) {
+        stack = new ::stack<string>();
+        stack->push(str);
+        return 1;
+    } else {
+        stack->push(str);
+        return 1;
+    }
+}
