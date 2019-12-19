@@ -7,10 +7,12 @@
 #include "SingleMapOfVar.h"
 #include <unordered_map>
 #include <mutex>
+#include <thread>
 
 using namespace std;
 
-
+mutex clientStart;
+mutex closeThered;
 int parenth(string line,int index, vector<string> &arr) {
     int j,flag =0,i;
         for (j=index+1;j<line.length();j++) {
@@ -44,6 +46,10 @@ void lexer(ifstream &file,vector<string>& arr){
         i=0;
         j=0;
        for(i=0;i<length;i++) {
+           if(line[i] == '\t') {
+               j=i+1;
+               continue;
+           }
            if (line[i] == ' ') {
                arr.push_back(line.substr(j, (i - j)));
                j = i + 1;
@@ -108,10 +114,13 @@ int main(int args, char* argv[]) {
     initializeMap(map);
     unordered_map<string,Variable> mapOfVar;
     mutex startServer;
+
+
     while (index <arr.size()){
         index += parser(index, arr, mapOfVar);
     }
-    cout<< arr[0]<<endl;
+
+
     return 0;
 }
 
@@ -123,4 +132,5 @@ int main(int args, char* argv[]) {
         file << arr[i] + "\n";
 
     }
+    file.close();
     */

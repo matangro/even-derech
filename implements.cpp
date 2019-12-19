@@ -15,14 +15,18 @@
 #include <unordered_map>
 #include <stack>
 #include "Expression.h"
+#include <thread>
+#include <mutex>
+#include <condition_variable>
 #include "ex1.h"
+#include <arpa/inet.h>
 using namespace std;
 
 
 //#include "cmake-build-debug/server.cpp"
 
 #define PORT 8081
-
+std::condition_variable cv;
 
 
 
@@ -125,7 +129,7 @@ int UpdateVarCommand::execute(int index, vector<string> &tokens, unordered_map<s
     double temp = e4->calculate();
     if(variables.find(str) != (variables.end())){
         variables.at(str).setValue(temp);
-        if(variables[str].getInOrOut() == 1) {
+        if(variables.at(str).getInOrOut() == 1) {
             SingleMapOfVar::pushTostack(str);
         }
     }
@@ -223,12 +227,12 @@ int ConnectCommand::execute(int index, vector<string>& tokens, unordered_map<str
     string ip = tokens[index];
     string port = tokens[index+1];
     int numOfPort = stoi(port);
-
-
+    //::thread thread1(client(ip, numOfPort, variables));
+    client(ip, numOfPort, variables);
     return 2+flag;
 }
 
-int client(string ip, int port,unordered_map<string, Variable>& variables){
+int ConnectCommand::client(string ip, int port,unordered_map<string, Variable>& variables){
     stack<string>* sta = SingleMapOfVar::getStack();
 
     int socketfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -239,22 +243,25 @@ int client(string ip, int port,unordered_map<string, Variable>& variables){
     }
     sockaddr_in address; //in means IP4
     address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY; //give me any IP allocated for my machine
+    address.sin_addr.s_addr = inet_addr(ip.c_str()); //give me any IP allocated for my machine
     address.sin_port = htons(port);
     if( connect(socketfd, (struct sockaddr*)&address, sizeof(address)) <0) {
         cout<<"can't connect to sim"<< endl;
     }
+    // noting to the server that the client is connected
+    cv.notify_one();
     while (true) {
         if(sta->empty()) {
-            sleep_for(0.1);
+            this_thread::sleep_for(10ms);
         } else{
             string nameOfVar = sta->top();
             sta->pop();
-            Variable b = variables[nameOfVar];
+            Variable b = variables.at(nameOfVar);
             string temp = to_string(b.getValue());
             string massage = "set" + b.getSim() + temp ;
-            send(socketfd, massage.c_str(), sizeof(massage), 0);
+            send(socketfd, massage.c_str(), strlen(massage.c_str()), 0);
         }
+
     }
 
 }

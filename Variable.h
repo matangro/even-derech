@@ -8,7 +8,7 @@
 using namespace std;
 
 class Variable : public Expression {
-    double val,
+    double val;
     int inOrOut;
     string name,sim;
 public:

@@ -13,7 +13,7 @@ using namespace std;
 class SingleMapOfVar {
 private:
     static unordered_map<string, Command*>* map;
-    static stack<string>* stack;
+    static stack<string>* stack1;
     static int num;
 
     void static initializeMap(unordered_map<string, Command*>* map);
