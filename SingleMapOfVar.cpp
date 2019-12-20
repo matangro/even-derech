@@ -3,8 +3,10 @@
 //
 
 #include "SingleMapOfVar.h"
+#include "implemets.h"
 SingleMapOfVar::SingleMapOfVar() = default;
 int SingleMapOfVar::num = 0;
+stack<string>* SingleMapOfVar::stack1 = nullptr;
 unordered_map<string, Command*> * SingleMapOfVar::map = 0;
 void  SingleMapOfVar::initializeMap(unordered_map<string, Command*>* map) {
     (*map)["openDataServer"] = new openServerCommand();
@@ -15,12 +17,28 @@ void  SingleMapOfVar::initializeMap(unordered_map<string, Command*>* map) {
     (*map)["Sleep"] = new SleepCommand();
 
 }
- unordered_map<string, Command*>* SingleMapOfVar::getInstance()
+unordered_map<string, Command*>* SingleMapOfVar::getInstance()
 {
-     if(num == 0){
-         map = new unordered_map<string, Command*>();
-            initializeMap(map);
-         num++;
-     }
+    if(num == 0){
+        map = new unordered_map<string, Command*>();
+        initializeMap(map);
+        num++;
+    }
     return map;
+}
+::stack<string>* SingleMapOfVar::getStack() {
+    if(stack1 == nullptr) {
+        stack1 = new ::stack<string>();
+    }
+    return stack1;
+}
+int SingleMapOfVar::pushTostack(string str) {
+    if (stack1 == nullptr) {
+        stack1 = new ::stack<string>();
+        stack1->push(str);
+        return 1;
+    } else {
+        stack1->push(str);
+        return 1;
+    }
 }

@@ -1,3 +1,4 @@
+
 //
 // Created by itay on 12/13/19.
 //
@@ -8,7 +9,8 @@
 using namespace std;
 
 class Variable : public Expression {
-    double val, inOrOut;
+    double val;
+    int inOrOut;
     string name,sim;
 public:
     Variable(int iOu, string n, string s) {
@@ -21,7 +23,7 @@ public:
         this->name = name1;
         this->val = value;
         this->sim = "local Variable";
-        this->inOrOut = 0;
+        this->inOrOut = 2;
     }
 
 
@@ -35,6 +37,13 @@ public:
     double getValue(){
         return this->val;
     }
+    string getSim() {
+        return this->sim;
+    }
+    int getInOrOut(){
+        return this->inOrOut;
+    }
+
 };
 /*
 Variable::Variable(string name1, double value) {

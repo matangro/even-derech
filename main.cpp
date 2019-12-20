@@ -98,6 +98,8 @@ int parser(int index, vector<string> arr, unordered_map<string, Variable>& mapOf
     }
 }
 int main(int args, char* argv[]) {
+    openServerCommand o;
+
     int index=0,i;
     Command* c;
     ifstream infile(argv[1]);
@@ -107,6 +109,7 @@ int main(int args, char* argv[]) {
     initializeMap(map);
     unordered_map<string,Variable> mapOfVar;
     ofstream file;
+    o.execute(1,arr,mapOfVar);
     /*
     file.open("demo.txt");
     for (i =0; i<arr.size(); i++) {

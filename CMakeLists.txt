@@ -3,4 +3,5 @@ project(even-derech)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(even-derech main.cpp Command.h implemets.h implements.cpp SingleMapOfVar.cpp SingleMapOfVar.h)
+add_executable(even-derech main.cpp Command.h implemets.h implements.cpp SingleMapOfVar.h SingleMapOfVar.cpp ex1.h ex1.cpp
+        Expression.h)

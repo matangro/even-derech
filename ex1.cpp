@@ -50,12 +50,11 @@ double Div::calculate(){
     if (temp == 0) {
         throw "division by zero";
     } else {
-            return (BinaryOperator::left->calculate() / temp);
+        return (BinaryOperator::left->calculate() / temp);
     }
 
 }
 /*
-
 // operator of variable
 Variable& Variable::operator++() {
     this->val = this->val + 1 ;
@@ -98,11 +97,11 @@ UMinus::~UMinus() {
 }
 
 UnaryOperator::~UnaryOperator() {
-delete this->single;
+    delete this->single;
 }
 BinaryOperator::~BinaryOperator() {
-delete this->left;
-delete this->right;
+    delete this->left;
+    delete this->right;
 }
 
 Plus::~Plus() {
@@ -156,7 +155,7 @@ Expression* Interpreter::interpret(string str) {
                 }
             }
             if(flag) {
-                    throw " the variable not exist in the map";
+                throw " the variable not exist in the map";
             } else{
                 continue;
             }
@@ -180,7 +179,7 @@ Expression* Interpreter::interpret(string str) {
                 }
 
             }
-            //if we dont have point in the number
+                //if we dont have point in the number
             else {
                 for (int j = length; j>0 ; j--) {
 
@@ -195,8 +194,8 @@ Expression* Interpreter::interpret(string str) {
             staC->push(str[i]);
             i++;
         }
-        // if the char is )
-            else if (str[i] == ')') {
+            // if the char is )
+        else if (str[i] == ')') {
 
             while(staC->top()!='(') {
 
@@ -238,7 +237,7 @@ Expression* Interpreter::interpret(string str) {
             staC->pop();
             i++;
         }
-        // if the char is operator
+            // if the char is operator
         else {
 
             if ((str[i] == '-')&&(str[i-1] == '(')) {
@@ -296,7 +295,7 @@ Expression* Interpreter::interpret(string str) {
                         break;
                     }
                 }
-                    staC->push(str[i]);
+                staC->push(str[i]);
 
             }
             i++;
@@ -382,7 +381,6 @@ void Interpreter::setVariables(string var){
     string numb="";
     int length = var.length();
     for (int i = 0; i< length; i++) {
-
         if (var[i] == '=') {
             flag = true;
             continue;
@@ -414,7 +412,6 @@ void Interpreter::setVariables(string var){
             } else {
                 if((var[i]<48)||(var[i]>57)) {
                     if (var[i] !='.') {
-
                         throw "illegal variable assignment!";
                     }
                 }
@@ -422,7 +419,6 @@ void Interpreter::setVariables(string var){
                 numb.append(a);
             }
         }
-
     }
     if (numb.length() >0) {
         regex reg("[a-zA-Z]+[0-9|a-z|A-Z]*");
@@ -473,5 +469,3 @@ int Interpreter::LengthOfVar(int num) {
 void Interpreter::setMap(unordered_map<string, Variable>& map) {
     this->vars = map;
 }
-
-
