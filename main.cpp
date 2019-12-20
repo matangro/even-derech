@@ -113,14 +113,12 @@ int main(int args, char* argv[]) {
     unordered_map<string, Command*>* map= SingleMapOfVar::getInstance();
     initializeMap(map);
     unordered_map<string,Variable> mapOfVar;
-    mutex startServer;
-
-
-    while (index <arr.size()){
+    while (index <arr.size()) {
         index += parser(index, arr, mapOfVar);
     }
-
-
+    SingleMapOfVar::setBool(true);
+    this_thread::sleep_for(10s);
+    int j =5;
     return 0;
 }
 

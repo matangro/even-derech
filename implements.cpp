@@ -20,6 +20,7 @@
 #include <condition_variable>
 #include "ex1.h"
 #include <arpa/inet.h>
+//#include <pthread.h>
 using namespace std;
 
 
@@ -30,14 +31,62 @@ std::condition_variable cv;
 
 
 
+void client1(){
+    stack<string>* sta = SingleMapOfVar::getStack();
+    string ip = sta->top();
+    sta->pop();
+    string tempPort= sta->top();
+    sta->pop();
 
-int server_run(int argc, char const *argv[]) {
+    int port = stoi(tempPort);
+
+    unordered_map<string, Variable>* variables = SingleMapOfVar::getMap();
+
+
+    int socketfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (socketfd == -1) {
+        //error
+        std::cerr << "Could not create a socket" << std::endl;
+        //return -1;
+    }
+    sockaddr_in address; //in means IP4
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = inet_addr("127.0.0.1"); //give me any IP allocated for my machine
+    address.sin_port = htons(5402);
+    if( connect(socketfd, (struct sockaddr*)&address, sizeof(address)) ==-1) {
+        cout<<"can't connect to sim"<< endl;
+    }
+    bool endOfProgg = SingleMapOfVar::getBool();
+    // noting to the server that the client is connected
+    cv.notify_one();
+    while (!(endOfProgg)) {
+        if(sta->empty()) {
+            this_thread::sleep_for(10ms);
+        } else{
+            string nameOfVar = sta->top();
+            sta->pop();
+            Variable b = variables->at(nameOfVar);
+            string temp = to_string(b.getValue());
+            string massage = "set" + b.getSim() + temp ;
+            send(socketfd, massage.c_str(), strlen(massage.c_str()), 0);
+        }
+        endOfProgg = SingleMapOfVar::getBool();
+    }
+    cout<<"end of clieant"<< endl;
+}
+
+void server_run() {
+    stack<string>* sta = SingleMapOfVar::getStack();
+    string port = sta->top();
+    int tempPort = stoi(port);
+    sta->pop();
+    SingleMapOfVar::setBool(false);
     //create socket
     int socketfd = socket(AF_INET, SOCK_STREAM, 0);
     if (socketfd == -1) {
         //error
         std::cerr << "Could not create a socket" << std::endl;
-        return -1;
+        //return -1;
     }
 
     //bind socket to IP address
@@ -45,20 +94,20 @@ int server_run(int argc, char const *argv[]) {
     sockaddr_in address; //in means IP4
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY; //give me any IP allocated for my machine
-    address.sin_port = htons(PORT);
+    address.sin_port = htons(tempPort);
     //we need to convert our number
     // to a number that the network understands.
 
     //the actual bind command
     if (bind(socketfd, (struct sockaddr *) &address, sizeof(address)) == -1) {
         std::cerr << "Could not bind the socket to an IP" << std::endl;
-        return -2;
+        //return -2;
     }
 
     //making socket listen to the port
     if (listen(socketfd, 5) == -1) { //can also set to SOMAXCON (max connections)
         std::cerr << "Error during listening command" << std::endl;
-        return -3;
+        //return -3;
     } else {
         std::cout << "Server is now listening ..." << std::endl;
     }
@@ -69,7 +118,7 @@ int server_run(int argc, char const *argv[]) {
 
     if (client_socket == -1) {
         std::cerr << "Error accepting client" << std::endl;
-        return -4;
+        //return -4;
     }
 
     close(socketfd); //closing the listening socket
@@ -83,15 +132,20 @@ int server_run(int argc, char const *argv[]) {
     char *hello = "Hello, I can hear you! \n";
     send(client_socket, hello, strlen(hello), 0);
     std::cout << "Hello message sent\n" << std::endl;
-    return 0;
+   // return 0;
 }
 
 
 
 int openServerCommand::execute(int index, vector<string>& tokens, unordered_map<string, Variable>& variables) {
-    const char *c = tokens[index].c_str();
+    const char *c = tokens[index+1].c_str();
     int port = std::atoi(c);
-    //std::thread thread_object(server_run);
+    stack<string>* sta = SingleMapOfVar::getStack();
+    SingleMapOfVar::setBool(true);
+    sta ->push(c);
+    std::thread thread_object(server_run);
+    thread_object.detach();
+    while (SingleMapOfVar::getBool()){}
     //thread_object.join();
     return 2;
 }
@@ -213,9 +267,35 @@ bool IfCommand::checkCon(int operatpr_index, vector<string> &tokens, unordered_m
 }
 
 int PrintCommand::execute(int index, vector<string>& tokens, unordered_map<string, Variable>& variables){
-    return 0;
+    int flag = 0;
+    if(!tokens[index].compare("Print")){
+        flag++;
+        index++;
+    }
+    string s = tokens[index];
+    if(variables.find(s)!= variables.end()){
+        float temp = variables[s].getValue();
+        cout<<temp<<endl;
+    } else{
+        cout<<s<<endl;
+    }
+    return 1+flag;
 }
 int SleepCommand::execute(int index, vector<string>& tokens, unordered_map<string, Variable>& variables){
+    int flag = 0;
+    if(!tokens[index].compare("Sleep")){
+        flag++;
+        index++;
+    }
+    string s = tokens[index];
+    int time = stoi(s);
+    //chrono::milliseconds* temp =new (time, ratio<1,1000>());
+    //chrono::duration timeToSleep =chrono::duration<int, ratio>(time,new ratio<1,1000>());
+    this_thread::__sleep_for(chrono::seconds(0),chrono::milliseconds(time));
+    return 1+flag;
+}
+
+void func(){
 
 }
 int ConnectCommand::execute(int index, vector<string>& tokens, unordered_map<string, Variable>& variables){
@@ -224,39 +304,54 @@ int ConnectCommand::execute(int index, vector<string>& tokens, unordered_map<str
         index++;
         flag++;
     }
+    float i = 100.5;
+    double j = i;
+    cout<<j<< endl;
     string ip = tokens[index];
     string port = tokens[index+1];
-    int numOfPort = stoi(port);
-    //::thread thread1(client(ip, numOfPort, variables));
-    client(ip, numOfPort, variables);
+    stack<string>* sta = SingleMapOfVar::getStack();
+    sta->push(port);
+    sta->push(ip);
+    //int numOfPort = stoi(port);
+    std::thread thread1(client1);
+    //client(ip, numOfPort, variables);
+    thread1.detach();
     return 2+flag;
 }
+/*
+void ConnectCommand::client(char c, char argv[]){
 
-int ConnectCommand::client(string ip, int port,unordered_map<string, Variable>& variables){
+    /*string ip = argv[0];
+    string tempPort= argv[1];
+
+    int port = stoi(tempPort);
+
+    unordered_map<string, Variable>* variables = SingleMapOfVar::getMap();
     stack<string>* sta = SingleMapOfVar::getStack();
 
     int socketfd = socket(AF_INET, SOCK_STREAM, 0);
     if (socketfd == -1) {
         //error
         std::cerr << "Could not create a socket" << std::endl;
-        return -1;
+        //return -1;
     }
     sockaddr_in address; //in means IP4
     address.sin_family = AF_INET;
-    address.sin_addr.s_addr = inet_addr(ip.c_str()); //give me any IP allocated for my machine
-    address.sin_port = htons(port);
-    if( connect(socketfd, (struct sockaddr*)&address, sizeof(address)) <0) {
+    address.sin_addr.s_addr = inet_addr("127.0.0.1"); //give me any IP allocated for my machine
+    address.sin_port = htons(5402);
+    if( connect(socketfd, (struct sockaddr*)&address, sizeof(address)) ==-1) {
         cout<<"can't connect to sim"<< endl;
     }
+    bool* endOfProgg = SingleMapOfVar::getBool();
     // noting to the server that the client is connected
     cv.notify_one();
-    while (true) {
+    while (!(*endOfProgg)) {
         if(sta->empty()) {
             this_thread::sleep_for(10ms);
         } else{
             string nameOfVar = sta->top();
             sta->pop();
-            Variable b = variables.at(nameOfVar);
+            Variable b = variables->at(nameOfVar);
             string temp = to_string(b.getValue());
             string massage = "set" + b.getSim() + temp ;
             send(socketfd, massage.c_str(), strlen(massage.c_str()), 0);
@@ -265,3 +360,4 @@ int ConnectCommand::client(string ip, int port,unordered_map<string, Variable>& 
     }
 
 }
+*/
