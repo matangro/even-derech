@@ -13,7 +13,6 @@
 #include <unordered_map>
 #include "Variable.h"
 using namespace std;
-int main();
 //class of varibels.
 /*class Variable: public Expression {
     string name;
@@ -29,7 +28,6 @@ int main();
     Variable& operator-=(double const &other);
     ~Variable();
 };
-
 */
 class UnaryOperator: public Expression {
 protected:
@@ -48,13 +46,13 @@ public:
 };
 class UMinus : public UnaryOperator{
 public:
-explicit UMinus(Expression* exp);
+    explicit UMinus(Expression* exp);
     double calculate() override ;
     ~UMinus();
 };
 class Value : public Expression{
     double num;
-    public:
+public:
     double calculate() override ;
     ~Value();
     Value(double d);
