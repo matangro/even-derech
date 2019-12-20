@@ -267,15 +267,34 @@ bool IfCommand::checkCon(int operatpr_index, vector<string> &tokens, unordered_m
 }
 
 int PrintCommand::execute(int index, vector<string>& tokens, unordered_map<string, Variable>& variables){
-    return 0;
+    int flag = 0;
+    if(!tokens[index].compare("Print")){
+        flag++;
+        index++;
+    }
+    string s = tokens[index];
+    if(variables.find(s)!= variables.end()){
+        float temp = variables[s].getValue();
+        cout<<temp<<endl;
+    } else{
+        cout<<s<<endl;
+    }
+    return 1+flag;
 }
 int SleepCommand::execute(int index, vector<string>& tokens, unordered_map<string, Variable>& variables){
-
+    int flag = 0;
+    if(!tokens[index].compare("Sleep")){
+        flag++;
+        index++;
+    }
+    string s = tokens[index];
+    int time = stoi(s);
+    //chrono::milliseconds* temp =new (time, ratio<1,1000>());
+    //chrono::duration timeToSleep =chrono::duration<int, ratio>(time,new ratio<1,1000>());
+    this_thread::__sleep_for(chrono::seconds(0),chrono::milliseconds(time));
+    return 1+flag;
 }
 
-void func(){
-
-}
 int ConnectCommand::execute(int index, vector<string>& tokens, unordered_map<string, Variable>& variables){
     int flag =0;
     if(!tokens[index].compare("connectControlClient")){
@@ -296,46 +315,3 @@ int ConnectCommand::execute(int index, vector<string>& tokens, unordered_map<str
     thread1.detach();
     return 2+flag;
 }
-/*
-void ConnectCommand::client(char c, char argv[]){
-
-    /*string ip = argv[0];
-    string tempPort= argv[1];
-
-    int port = stoi(tempPort);
-
-    unordered_map<string, Variable>* variables = SingleMapOfVar::getMap();
-    stack<string>* sta = SingleMapOfVar::getStack();
-
-    int socketfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (socketfd == -1) {
-        //error
-        std::cerr << "Could not create a socket" << std::endl;
-        //return -1;
-    }
-    sockaddr_in address; //in means IP4
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = inet_addr("127.0.0.1"); //give me any IP allocated for my machine
-    address.sin_port = htons(5402);
-    if( connect(socketfd, (struct sockaddr*)&address, sizeof(address)) ==-1) {
-        cout<<"can't connect to sim"<< endl;
-    }
-    bool* endOfProgg = SingleMapOfVar::getBool();
-    // noting to the server that the client is connected
-    cv.notify_one();
-    while (!(*endOfProgg)) {
-        if(sta->empty()) {
-            this_thread::sleep_for(10ms);
-        } else{
-            string nameOfVar = sta->top();
-            sta->pop();
-            Variable b = variables->at(nameOfVar);
-            string temp = to_string(b.getValue());
-            string massage = "set" + b.getSim() + temp ;
-            send(socketfd, massage.c_str(), strlen(massage.c_str()), 0);
-        }
-
-    }
-
-}
-*/
