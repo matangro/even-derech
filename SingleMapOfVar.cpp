@@ -9,7 +9,7 @@ int SingleMapOfVar::num = 0;
 
 bool SingleMapOfVar::endOfProg = false;
 stack<string>* SingleMapOfVar::stack1 = nullptr;
-unordered_map<string, Command*> * SingleMapOfVar::map = 0;
+unordered_map<string, Command*>* SingleMapOfVar::map = nullptr;
 void  SingleMapOfVar::initializeMap(unordered_map<string, Command*>* map) {
     (*map)["openDataServer"] = new openServerCommand();
     (*map)["connectControlClient"] =new ConnectCommand();

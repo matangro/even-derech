@@ -74,6 +74,7 @@ void client1(){
             Variable b = variables->at(nameOfVar);
             string temp = to_string(b.getValue());
             string massage = "set" + b.getSim() + temp ;
+            cout<<"the clieant sent to the sim: " +massage<<endl;
             send(socketfd, massage.c_str(), strlen(massage.c_str()), 0);
         }
         endOfProgg = SingleMapOfVar::getBool();
@@ -145,8 +146,8 @@ void server_run() {
         std::cout << "Server is now listening ..." << std::endl;
     }
 
-    // accepting a client
-   /* int client_socket = accept(socketfd, (struct sockaddr *) &address,
+
+    int client_socket = accept(socketfd, (struct sockaddr *) &address,
                                (socklen_t *) &address);
 
     if (client_socket == -1) {
@@ -193,7 +194,7 @@ void server_run() {
         }
         map[j].second = result;// = atoi((const char*)buffer[i]);
     }
-    std::cout << buffer << std::endl;
+    //std::cout << buffer << std::endl;
 
     //writing back to client
     char *hello = "Hello, I can hear you! \n";
@@ -286,7 +287,7 @@ int IfCommand::execute(int index, vector<string>& tokens, unordered_map<string, 
             currentProgress = IfCommand::parser(temp_index, tokens, variables);
             temp_index += currentProgress;
             progress += currentProgress;
-            cout<<progress<<endl;
+           // cout<<progress<<endl;
         }
         progress += 2;
         return progress * 10 + 1;
@@ -343,7 +344,7 @@ int PrintCommand::execute(int index, vector<string>& tokens, unordered_map<strin
     }
     string s = tokens[index];
     if(variables.find(s)!= variables.end()){
-        float temp = variables[s].getValue();
+        double temp = variables.at(s).getValue();
         cout<<temp<<endl;
     } else{
         cout<<s<<endl;
