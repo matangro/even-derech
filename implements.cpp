@@ -87,35 +87,45 @@ void server_run() {
     string port = sta->top();
     int tempPort = stoi(port);
     sta->pop();
-    SingleMapOfVar::setBool(false);
-
-
-    //create socket
-    vector<pair<string, float>> map;
-    map.push_back( make_pair("/instrumentation/airspeed-indicator/indicated-speed-kt", 0));
-    map.push_back( make_pair("/instrumentation/altimeter/indicated-altitude-ft", 0));
-    map.push_back( make_pair("/instrumentation/altimeter/pressure-alt-ft", 0));
-    map.push_back(make_pair("/instrumentation/attitude-indicator/indicated-pitch-deg", 0));
-    map.push_back(make_pair("/instrumentation/attitude-indicator/indicated-roll-deg", 0));
-    map.push_back(make_pair("/instrumentation/attitude-indicator/internal-pitch-deg", 0));
-    map.push_back(make_pair("/instrumentation/attitude-indicator/internal-roll-deg", 0));
-    map.push_back(make_pair("/instrumentation/encoder/indicated-altitude-ft", 0));
-    map.push_back(make_pair("/instrumentation/encoder/pressure-alt-ft", 0));
-    map.push_back(make_pair("/instrumentation/gps/indicated-altitude-ft", 0));
-    map.push_back(make_pair("/instrumentation/gps/indicated-ground-speed-kt", 0));
-    map.push_back(make_pair("/instrumentation/gps/indicated-vertical-speed", 0));
-    map.push_back(make_pair("/instrumentation/heading-indicator/indicated-heading-deg", 0));
-    map.push_back(make_pair("/instrumentation/magnetic-compass/indicated-heading-deg",0));
-    map.push_back(make_pair("/instrumentation/slip-skid-ball/indicated-slip-skid",0));
-    map.push_back(make_pair("/instrumentation/turn-indicator/indicated-turn-rate",0));
-    map.push_back(make_pair("/instrumentation/vertical-speed-indicator/indicated-speed-fpm",0));
-    map.push_back(make_pair("/controls/flight/aileron",0));
-    map.push_back(make_pair("/controls/flight/elevator",0));
-    map.push_back(make_pair("/controls/flight/rudder",0));
-    map.push_back(make_pair("/controls/flight/flaps",0));
-    map.push_back(make_pair("/controls/engines/engine/throttle",0));
-    map.push_back(make_pair("/engines/engine/rpm",0));
-
+    unordered_map<string,Variable> variables = SingleMapOfVar::getMapOfVar();
+    unordered_map<string,float > serverMap;
+    vector<string> map;
+    map.push_back("/instrumentation/airspeed-indicator/indicated-speed-kt");
+    map.push_back("/sim/time/warp");
+    map.push_back("/controls/switches/magnetos");
+    map.push_back("/instrumentation/heading-indicator/offset-deg");
+    map.push_back("/instrumentation/altimeter/indicated-altitude-ft");
+    map.push_back("/instrumentation/altimeter/pressure-alt-ft");
+    map.push_back("/instrumentation/attitude-indicator/indicated-pitch-deg");
+    map.push_back("/instrumentation/attitude-indicator/indicated-roll-deg");
+    map.push_back("/instrumentation/attitude-indicator/internal-pitch-deg");
+    map.push_back("/instrumentation/attitude-indicator/internal-roll-deg");
+    map.push_back("/instrumentation/encoder/indicated-altitude-ft");
+    map.push_back("/instrumentation/encoder/pressure-alt-ft");
+    map.push_back("/instrumentation/gps/indicated-altitude-ft");
+    map.push_back("/instrumentation/gps/indicated-ground-speed-kt");
+    map.push_back("/instrumentation/gps/indicated-vertical-speed");
+    map.push_back("/instrumentation/heading-indicator/indicated-heading-deg");
+    map.push_back("/instrumentation/magnetic-compass/indicated-heading-deg");
+    map.push_back("/instrumentation/slip-skid-ball/indicated-slip-skid");
+    map.push_back("/instrumentation/turn-indicator/indicated-turn-rate");
+    map.push_back("/instrumentation/vertical-speed-indicator/indicated-speed-fpm");
+    map.push_back("/controls/flight/aileron");
+    map.push_back("/controls/flight/elevator");
+    map.push_back("/controls/flight/rudder");
+    map.push_back("/controls/flight/flaps");
+    map.push_back("/controls/engines/engine/throttle");
+    map.push_back("/controls/engines/current-engine/throttle");
+    map.push_back("/controls/switches/master-avionics");
+    map.push_back("/controls/switches/starter");
+    map.push_back("/engines/active-engine/auto-start");
+    map.push_back("/controls/flight/speedbrake");
+    map.push_back("/sim/model/c172p/brake-parking");
+    map.push_back("/controls/engines/engine/primer");
+    map.push_back("/controls/engines/current-engine/mixture");
+    map.push_back("/controls/switches/master-bat");
+    map.push_back("/controls/switches/master-alt");
+    map.push_back("/engines/engine/rpm");
     int socketfd = socket(AF_INET, SOCK_STREAM, 0);
     if (socketfd == -1) {
         //error
@@ -147,60 +157,67 @@ void server_run() {
     }
 
 
-    int client_socket = accept(socketfd, (struct sockaddr *) &address,
-                               (socklen_t *) &address);
+    int client_socket = accept(socketfd, (struct sockaddr *) &address, (socklen_t *) &address);
+    SingleMapOfVar::setBool(false);
 
     if (client_socket == -1) {
         std::cerr << "Error accepting client" << std::endl;
         //return -4;
     }
 
+
     close(socketfd); //closing the listening socket
+    cout<<"server work"<< endl;
+    //char buffer[2048] = {"0.000000,0.000000,1.193444,12.000000,40.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,270.010010,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000"};
+    char buffer[2048] ={0};
+    int i = 0;
+    while (!SingleMapOfVar::getBool()) {
+        i=0;
+      int valread = read(client_socket, buffer, 2048);
+      cout<<buffer<<endl;
+      for (int j=0; j < 36; j++) {
+          if (buffer[i] == ',') {
+              i++;
+          }
+          int num = 0, div = 0, flag = 0;
+          num = buffer[i] - '0';
+          i++;
+          while (buffer[i] != ',' && buffer[i] != NULL) {
+              if (buffer[i] == '.') {
+                  flag = 1;
+                  i++;
+                  continue;
+              }
+              num *= 10;
+              num += (buffer[i] - '0');
+              i++;
+              if (flag == 1) {
+                  if (div == 0) {
+                      div += 10;
+                  } else {
+                      div *= 10;
+                  }
 
-    //reading from client*/
-    //char buffer[2048] = {1,'.',5,5,',',1,',',2,',',3,',',4,',',5,',',6,',',7,',',8,',',9,',',10,',',11,',',12,
-                 //        ',',13,',',14,',',15,',',16,',',17,',',18,',',19,',',20,',',21,',',22};
-  char buffer[2048] ={0};  
-  int i = 0;
-//    int valread = read(client_socket, buffer, 2048);
-    for (int j; j<23;j++){
-        if(buffer[i] == ',') {
-            i++;
-        }
-        int num = 0,div = 0,flag = 0;
-        num = buffer[i] - '0' + 48;
-        i++;
-        while (buffer[i] != ',' && buffer[i] != NULL) {
-            if (buffer[i] == '.') {
-                flag = 1;
-                i++;
-                continue;
-            }
-            num*=10;
-            num += (buffer[i]-'0' + 48);
-            i++;
-            if (flag == 1) {
-                if(div == 0) {
-                    div +=10;
-                } else {
-                    div *=10;
-                }
+              }
+          }
+          float result = (float) num;
+          if (div != 0) {
+              result = (float) num / div;
+          }
+          cout<<result<<endl;
+          serverMap[map[j]] = result;// = atoi((const char*)buffer[i]);
+      }
+      variables = SingleMapOfVar::getMapOfVar();
+      for (auto pair :variables){
+          if(pair.second.getInOrOut()==0){
+              string temp = pair.second.getSim();
+              float a = serverMap[temp];
+              pair.second.setValue(a);
+          }
+      }
 
-            }
-        }
-        float result = (float)num;
-        if(div != 0) {
-            result = (float)num / div;
-        }
-        map[j].second = result;// = atoi((const char*)buffer[i]);
     }
-    //std::cout << buffer << std::endl;
 
-    //writing back to client
-    char *hello = "Hello, I can hear you! \n";
-//    send(client_socket, hello, strlen(hello), 0);
-    std::cout << "Hello message sent\n" << std::endl;
-   // return 0;
 }
 
 
@@ -211,6 +228,7 @@ int openServerCommand::execute(int index, vector<string>& tokens, unordered_map<
     stack<string>* sta = SingleMapOfVar::getStack();
     SingleMapOfVar::setBool(true);
     sta ->push(c);
+    server_run();
     std::thread thread_object(server_run);
     thread_object.detach();
     while (SingleMapOfVar::getBool()){}
@@ -372,9 +390,6 @@ int ConnectCommand::execute(int index, vector<string>& tokens, unordered_map<str
         index++;
         flag++;
     }
-    float i = 100.5;
-    double j = i;
-    cout<<j<< endl;
     string ip = tokens[index];
     string port = tokens[index+1];
     stack<string>* sta = SingleMapOfVar::getStack();

@@ -21,18 +21,32 @@ int parenth(string line,int index, vector<string> &arr) {
             }
         }
         string a = line.substr(index+1,(j-index-1));
+
         i=0;
         while ((j=a.find(',',i))!=string::npos){
             flag = 1;
-
-            arr.push_back(a.substr(i,(j-i-1)));
+            if(a[i]== '"'){
+                arr.push_back(a.substr(i+1,(j-i-2)));
+            } else{
+                arr.push_back(a.substr(i,(j-i-1)));
+            }
+            //arr.push_back(a.substr(i,(j-i-1)));
             i=j+1;
         }
         //if we dont have , in the sograim;
         if(!flag) {
-            arr.push_back(a);
+            if(a[0]=='"'){
+                arr.push_back(a.substr(1,a.length()-2));
+            } else {
+                arr.push_back(a);
+            }
         } else {
-            arr.push_back(a.substr(i,(a.length()-i)));
+            if(a[i]=='"'){
+                arr.push_back(a.substr(i,(a.length()-i-2)));
+            } else {
+                arr.push_back(a.substr(i,(a.length()-i)));
+            }
+           // arr.push_back(a.substr(i,(a.length()-i)));
         }
 
         return a.length();
@@ -55,6 +69,7 @@ void lexer(ifstream &file,vector<string>& arr){
                j = i + 1;
            } else if (line[i] == '(') {
                if (j != i) {
+
                    arr.push_back(line.substr(j, (i - j)));
                }
                j = i + 1;
@@ -79,7 +94,12 @@ void lexer(ifstream &file,vector<string>& arr){
            }
        }
        if(j!=i){
-           arr.push_back(line.substr(j, (i - j)));
+           if(line[j]=='"'){
+               arr.push_back(line.substr(j+1, (i - j-2)));
+           } else {
+               arr.push_back(line.substr(j, (i - j)));
+           }
+
        }
     }
 
@@ -115,6 +135,7 @@ int main(int args, char* argv[]) {
     unordered_map<string, Command*>* map= SingleMapOfVar::getInstance();
     initializeMap(map);
     unordered_map<string,Variable> mapOfVar;
+    SingleMapOfVar::setMap(mapOfVar);
     while (index <arr.size()) {
         index += parser(index, arr, mapOfVar);
     }
