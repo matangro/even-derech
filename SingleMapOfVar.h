@@ -8,12 +8,13 @@
 #include <stack>
 #include "Command.h"
 #include "Variable.h"
-#include "implemets.h"
+
 using namespace std;
 class SingleMapOfVar {
 private:
     static unordered_map<string, Command*>* map;
     static stack<string>* stack1;
+    static unordered_map<string,Variable>* mapOfVar;
 
     static bool endOfProg;
     static int num;
@@ -29,12 +30,12 @@ public:
     static unordered_map<string, Command*>* getInstance();
     static ::stack<string>* getStack();
     static int pushTostack(string str);
-
+    static unordered_map<string,Variable> getMapOfVar();
     static bool getBool();
     static void setBool(bool s);
     static unordered_map<string,Variable>* getMap();
     static void setMap(unordered_map<string,Variable>& map1);
-    static unordered_map<string,Variable>* mapOfVar;
+
 };
 
 

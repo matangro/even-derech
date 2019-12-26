@@ -9,7 +9,8 @@ int SingleMapOfVar::num = 0;
 
 bool SingleMapOfVar::endOfProg = false;
 stack<string>* SingleMapOfVar::stack1 = nullptr;
-unordered_map<string, Command*> * SingleMapOfVar::map = 0;
+unordered_map<string,Variable>* SingleMapOfVar::mapOfVar = nullptr;
+unordered_map<string, Command*>* SingleMapOfVar::map = nullptr;
 void  SingleMapOfVar::initializeMap(unordered_map<string, Command*>* map) {
     (*map)["openDataServer"] = new openServerCommand();
     (*map)["connectControlClient"] =new ConnectCommand();
@@ -28,7 +29,9 @@ unordered_map<string, Command*>* SingleMapOfVar::getInstance()
     }
     return map;
 }
-
+unordered_map<string,Variable> SingleMapOfVar::getMapOfVar() {
+   return *mapOfVar;
+}
  ::stack<string>* SingleMapOfVar::getStack() {
     if(stack1 == nullptr) {
        stack1 = new ::stack<string>();
@@ -58,7 +61,7 @@ unordered_map<string,Variable>* SingleMapOfVar::getMap(){
     return (SingleMapOfVar::mapOfVar);
 }
 void SingleMapOfVar::setMap(unordered_map<string,Variable>& map1) {
-    *mapOfVar = map1;
+    mapOfVar = &map1;
 }
-unordered_map<string,Variable>* SingleMapOfVar::mapOfVar = 0;
+
 
