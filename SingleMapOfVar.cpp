@@ -29,8 +29,8 @@ unordered_map<string, Command*>* SingleMapOfVar::getInstance()
     }
     return map;
 }
-unordered_map<string,Variable> SingleMapOfVar::getMapOfVar() {
-   return *mapOfVar;
+unordered_map<string,Variable>* SingleMapOfVar::getMapOfVar() {
+   return mapOfVar;
 }
  ::stack<string>* SingleMapOfVar::getStack() {
     if(stack1 == nullptr) {

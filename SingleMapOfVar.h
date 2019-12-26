@@ -30,7 +30,7 @@ public:
     static unordered_map<string, Command*>* getInstance();
     static ::stack<string>* getStack();
     static int pushTostack(string str);
-    static unordered_map<string,Variable> getMapOfVar();
+    static unordered_map<string,Variable>* getMapOfVar();
     static bool getBool();
     static void setBool(bool s);
     static unordered_map<string,Variable>* getMap();
