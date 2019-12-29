@@ -116,7 +116,7 @@ void initializeMap(unordered_map<string, Command*>* map){
 int parser(int index, vector<string> arr, unordered_map<string, Variable>& mapOfVar ) {
     Command* c;
     unordered_map<string, Command*>* map= SingleMapOfVar::getInstance();
-    if(map->find(arr[index]) != map->end() || arr[index].compare("while") == 0){
+    if(map->find(arr[index]) != map->end()){
         c = (*map)[arr[index]];
         return c->execute(index,arr,mapOfVar);
     } else{
@@ -137,8 +137,8 @@ int main(int args, char* argv[]) {
     unordered_map<string,Variable> mapOfVar;
     SingleMapOfVar::setMap(mapOfVar);
     while (index <arr.size()) {
-        if(index>172) {
-            cout<<" "<<endl;
+        if(index==177) {
+            //cout<<" "<<endl;
         }
         index += parser(index, arr, mapOfVar);
     }

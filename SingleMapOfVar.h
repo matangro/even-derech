@@ -6,6 +6,7 @@
 #define EVEN_DERECH_SINGLEMAPOFVAR_H
 #include <unordered_map>
 #include <stack>
+#include <queue>
 #include "Command.h"
 #include "Variable.h"
 
@@ -13,7 +14,7 @@ using namespace std;
 class SingleMapOfVar {
 private:
     static unordered_map<string, Command*>* map;
-    static stack<string>* stack1;
+    static queue<string>* stack1;
     static unordered_map<string,Variable>* mapOfVar;
 
     static bool endOfProg;
@@ -28,7 +29,7 @@ private:
 public:
     /* Static access method. */
     static unordered_map<string, Command*>* getInstance();
-    static ::stack<string>* getStack();
+    static ::queue<string>* getStack();
     static int pushTostack(string str);
     static unordered_map<string,Variable>* getMapOfVar();
     static bool getBool();

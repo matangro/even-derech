@@ -37,10 +37,10 @@ std::condition_variable cv;
 
 
 void client1(){
-    stack<string>* sta = SingleMapOfVar::getStack();
-    string ip = sta->top();
+    queue<string>* sta = SingleMapOfVar::getStack();
+    string ip = sta->front();
     sta->pop();
-    string tempPort= sta->top();
+    string tempPort= sta->front();
     sta->pop();
 
     int port = stoi(tempPort);
@@ -70,7 +70,7 @@ void client1(){
         if(sta->empty()) {
             this_thread::sleep_for(5ms);
         } else{
-            string nameOfVar = sta->top();
+            string nameOfVar = sta->front();
             sta->pop();
             Variable b = variables->at(nameOfVar);
             float p = b.getValue();
@@ -86,8 +86,8 @@ void client1(){
 
 void server_run() {
     sleep(5);
-    stack<string>* sta = SingleMapOfVar::getStack();
-    string port = sta->top();
+    queue<string>* sta = SingleMapOfVar::getStack();
+    string port = sta->front();
     int tempPort = stoi(port);
     sta->pop();
     unordered_map<string,Variable>* variables = SingleMapOfVar::getMapOfVar();
@@ -179,9 +179,7 @@ void server_run() {
       int valread = read(client_socket, buffer, 2048);
       //cout<<buffer<<endl;
       for (int j=0; j < 36; j++) {
-          if(j==35) {
-           //   cout<< "k"<<endl;
-          }
+
           if (buffer[i] == ',') {
               i++;
           }
@@ -210,7 +208,9 @@ void server_run() {
           if (div != 0) {
               result = (float) num / div;
           }
-
+          if(j==5) {
+              cout<< result<<endl;
+          }
           //cout<<result<<endl;
           serverMap[map[j]] = result;// = atoi((const char*)buffer[i]);
       }
@@ -241,7 +241,7 @@ void server_run() {
 int openServerCommand::execute(int index, vector<string>& tokens, unordered_map<string, Variable>& variables) {
     const char *c = tokens[index+1].c_str();
     int port = std::atoi(c);
-    stack<string>* sta = SingleMapOfVar::getStack();
+    queue<string>* sta = SingleMapOfVar::getStack();
     SingleMapOfVar::setBool(true);
     sta ->push(c);
     //server_run();
@@ -257,7 +257,7 @@ int DefineVarCommand::execute(int index, vector<string> &tokens, unordered_map<s
     index++;
     if(!tokens[index +1].compare("->")) {
         variables.insert({tokens[index], Variable(1, tokens[index], tokens[index +3])});
-    } else if(!tokens[index+1].compare("=")){
+    } else if(tokens[index+1][0]=='='){
         const char* val = tokens[index +2].c_str();
         Interpreter* i1 = new Interpreter();
         i1->setMap(variables);
@@ -415,7 +415,7 @@ int SleepCommand::execute(int index, vector<string>& tokens, unordered_map<strin
     //chrono::milliseconds* temp =new (time, ratio<1,1000>());
     //chrono::duration timeToSleep =chrono::duration<int, ratio>(time,new ratio<1,1000>());
     if(time>1000){
-        secend = time/2000;
+        secend = time/2500;
         time = time%1000;
     }
     this_thread::__sleep_for(chrono::seconds(secend),chrono::milliseconds(time));
@@ -431,9 +431,9 @@ int ConnectCommand::execute(int index, vector<string>& tokens, unordered_map<str
     }
     string ip = tokens[index];
     string port = tokens[index+1];
-    stack<string>* sta = SingleMapOfVar::getStack();
-    sta->push(port);
+    queue<string>* sta = SingleMapOfVar::getStack();
     sta->push(ip);
+    sta->push(port);
     //int numOfPort = stoi(port);
     std::thread thread1(client1);
     //client(ip, numOfPort, variables);

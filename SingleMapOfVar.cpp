@@ -8,7 +8,7 @@ SingleMapOfVar::SingleMapOfVar() = default;
 int SingleMapOfVar::num = 0;
 
 bool SingleMapOfVar::endOfProg = false;
-stack<string>* SingleMapOfVar::stack1 = nullptr;
+queue<string>* SingleMapOfVar::stack1 = nullptr;
 unordered_map<string,Variable>* SingleMapOfVar::mapOfVar = nullptr;
 unordered_map<string, Command*>* SingleMapOfVar::map = nullptr;
 void  SingleMapOfVar::initializeMap(unordered_map<string, Command*>* map) {
@@ -32,16 +32,16 @@ unordered_map<string, Command*>* SingleMapOfVar::getInstance()
 unordered_map<string,Variable>* SingleMapOfVar::getMapOfVar() {
    return mapOfVar;
 }
- ::stack<string>* SingleMapOfVar::getStack() {
+ ::queue<string>* SingleMapOfVar::getStack() {
     if(stack1 == nullptr) {
-       stack1 = new ::stack<string>();
+       stack1 = new ::queue<string>();
 
     }
     return stack1;
 }
 int SingleMapOfVar::pushTostack(string str) {
     if (stack1 == nullptr) {
-        stack1 = new ::stack<string>();
+        stack1 = new ::queue<string>();
         stack1->push(str);
         return 1;
     } else {
