@@ -37,10 +37,10 @@ std::condition_variable cv;
 
 
 void client1(){
-    stack<string>* sta = SingleMapOfVar::getStack();
-    string ip = sta->top();
+    queue<string>* sta = SingleMapOfVar::getStack();
+    string ip = sta->front();
     sta->pop();
-    string tempPort= sta->top();
+    string tempPort= sta->front();
     sta->pop();
 
     int port = stoi(tempPort);
@@ -62,18 +62,20 @@ void client1(){
     if( connect(socketfd, (struct sockaddr*)&address, sizeof(address)) ==-1) {
         cout<<"can't connect to sim"<< endl;
     }
+    cout<<"client is conected"<<endl;
     bool endOfProgg = SingleMapOfVar::getBool();
     // noting to the server that the client is connected
     cv.notify_one();
     while (!(endOfProgg)) {
         if(sta->empty()) {
-            this_thread::sleep_for(10ms);
+            this_thread::sleep_for(5ms);
         } else{
-            string nameOfVar = sta->top();
+            string nameOfVar = sta->front();
             sta->pop();
             Variable b = variables->at(nameOfVar);
-            string temp = to_string(b.getValue());
-            string massage = "set" + b.getSim() + temp ;
+            float p = b.getValue();
+            string temp = to_string(p);
+            string massage = "set " + b.getSim().substr(1,b.getSim().length()-1) +" "+ temp +"\r\n\r\n" ;
             cout<<"the clieant sent to the sim: " +massage<<endl;
             send(socketfd, massage.c_str(), strlen(massage.c_str()), 0);
         }
@@ -83,11 +85,12 @@ void client1(){
 }
 
 void server_run() {
-    stack<string>* sta = SingleMapOfVar::getStack();
-    string port = sta->top();
+    sleep(5);
+    queue<string>* sta = SingleMapOfVar::getStack();
+    string port = sta->front();
     int tempPort = stoi(port);
     sta->pop();
-    unordered_map<string,Variable> variables = SingleMapOfVar::getMapOfVar();
+    unordered_map<string,Variable>* variables = SingleMapOfVar::getMapOfVar();
     unordered_map<string,float > serverMap;
     vector<string> map;
     map.push_back("/instrumentation/airspeed-indicator/indicated-speed-kt");
@@ -126,6 +129,7 @@ void server_run() {
     map.push_back("/controls/switches/master-bat");
     map.push_back("/controls/switches/master-alt");
     map.push_back("/engines/engine/rpm");
+    //cout<<map[4]<<endl;
     int socketfd = socket(AF_INET, SOCK_STREAM, 0);
     if (socketfd == -1) {
         //error
@@ -168,20 +172,28 @@ void server_run() {
 
     close(socketfd); //closing the listening socket
     cout<<"server work"<< endl;
-    char buffer[2048] = {"0.000000,0.000000,1.193444,12.000000,40.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,270.010010,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000"};
-    //char buffer[2048] ={0};
+    //char buffer[2048] = {"0.000000,0.000000,1.193444,12.000000,40.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,270.010010,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000"};
+    char buffer[2048] ={0};
     int i = 0;
+    int minus=0;
     while (!SingleMapOfVar::getBool()) {
-      //int valread = read(client_socket, buffer, 2048);
-      cout<<buffer<<endl;
+        i=0;
+        buffer[0] =0;
+      int valread = read(client_socket, buffer, 2048);
+      //cout<<buffer<<endl;
       for (int j=0; j < 36; j++) {
+
           if (buffer[i] == ',') {
+              i++;
+          }
+          if(buffer[i]== '-') {
+              minus =1;
               i++;
           }
           int num = 0, div = 0, flag = 0;
           num = buffer[i] - '0';
           i++;
-          while (buffer[i] != ',' && buffer[i] != NULL) {
+          while (buffer[i] != ',' && buffer[i] != '\n') {
               if (buffer[i] == '.') {
                   flag = 1;
                   i++;
@@ -203,15 +215,31 @@ void server_run() {
           if (div != 0) {
               result = (float) num / div;
           }
-          cout<<result<<endl;
+          if(j==4) {
+              //cout<< result<<endl;
+          }
+          //cout<<result<<endl;
+          if(minus){
+              result = - result;
+              minus=0;
+          }
           serverMap[map[j]] = result;// = atoi((const char*)buffer[i]);
       }
-      variables = SingleMapOfVar::getMapOfVar();
-      for (auto pair :variables){
+      //variables = SingleMapOfVar::getMapOfVar();
+      for (auto& pair :*variables){
           if(pair.second.getInOrOut()==0){
               string temp = pair.second.getSim();
+              if(!pair.second.getSim().compare("/instrumentation/altimeter/indicated-altitude-ft")) {
+                 // cout<<"alt before is " << pair.second.getValue()<<endl;
+              }
+              //cout<<pair.first<<endl;
               float a = serverMap[temp];
-              pair.second.setValue(a);
+              variables->at(pair.first).setValue(a);
+              //pair.second.setValue(a);
+              if(!pair.second.getSim().compare("/instrumentation/altimeter/indicated-altitude-ft")) {
+                 // cout<<"alt after is " << pair.second.getValue()<<endl;
+              }
+              //cout<<pair.second.getValue()<<endl;
           }
       }
 
@@ -224,10 +252,10 @@ void server_run() {
 int openServerCommand::execute(int index, vector<string>& tokens, unordered_map<string, Variable>& variables) {
     const char *c = tokens[index+1].c_str();
     int port = std::atoi(c);
-    stack<string>* sta = SingleMapOfVar::getStack();
+    queue<string>* sta = SingleMapOfVar::getStack();
     SingleMapOfVar::setBool(true);
     sta ->push(c);
-    server_run();
+    //server_run();
     std::thread thread_object(server_run);
     thread_object.detach();
     while (SingleMapOfVar::getBool()){}
@@ -238,24 +266,42 @@ int openServerCommand::execute(int index, vector<string>& tokens, unordered_map<
 
 int DefineVarCommand::execute(int index, vector<string> &tokens, unordered_map<string, Variable>& variables) {
     index++;
-    if(tokens[index +1].compare("->")) {
+    if(!tokens[index +1].compare("->")) {
         variables.insert({tokens[index], Variable(1, tokens[index], tokens[index +3])});
-    } else {//"<-"
+    } else if(tokens[index+1][0]=='='){
+        const char* val = tokens[index +2].c_str();
+        Interpreter* i1 = new Interpreter();
+        i1->setMap(variables);
+        Expression* e4 = nullptr;
+        e4 = i1->interpret(val);
+        double temp = e4->calculate();
+        variables.insert({tokens[index], Variable(2, tokens[index], "null")});
+        variables.at(tokens[index]).setValue(temp);
+        return 4;
+    }
+    else {//"<-"
         variables.insert({tokens[index], Variable(0, tokens[index], tokens[index +3])});
     }
     return 5;
 }
-int UpdateVarCommand::execute(int index, vector<string> &tokens, unordered_map<string, Variable>& variables) {string str =tokens[index];
+int UpdateVarCommand::execute(int index, vector<string> &tokens, unordered_map<string, Variable>& variables) {
+    string str =tokens[index];
     const char* val = tokens[index +2].c_str();
     Interpreter* i1 = new Interpreter();
     i1->setMap(variables);
     Expression* e4 = nullptr;
     e4 = i1->interpret(val);
     double temp = e4->calculate();
+    cout<<"we updait the var " << str <<endl;
     if(variables.find(str) != (variables.end())){
+        //cout<<variables.at(str).getValue()<<endl;
         variables.at(str).setValue(temp);
+        //cout<<variables.at(str).getValue()<<endl;
+        cout<<"we find the var in the map " << str << "the inOrOut is " << variables.at(str).getInOrOut()<<endl;
+
         if(variables.at(str).getInOrOut() == 1) {
             SingleMapOfVar::pushTostack(str);
+            cout<<"we put the var " + str +"to the stack"<<endl;
         }
     }
 
@@ -370,6 +416,7 @@ int PrintCommand::execute(int index, vector<string>& tokens, unordered_map<strin
 }
 int SleepCommand::execute(int index, vector<string>& tokens, unordered_map<string, Variable>& variables){
     int flag = 0;
+    int secend = 0;
     if(!tokens[index].compare("Sleep")){
         flag++;
         index++;
@@ -378,7 +425,11 @@ int SleepCommand::execute(int index, vector<string>& tokens, unordered_map<strin
     int time = stoi(s);
     //chrono::milliseconds* temp =new (time, ratio<1,1000>());
     //chrono::duration timeToSleep =chrono::duration<int, ratio>(time,new ratio<1,1000>());
-    this_thread::__sleep_for(chrono::seconds(0),chrono::milliseconds(time));
+    if(time>1000){
+        secend = time/1000;
+        time = time%1000;
+    }
+    this_thread::__sleep_for(chrono::seconds(secend),chrono::milliseconds(time));
     return 1+flag;
 }
 
@@ -391,9 +442,9 @@ int ConnectCommand::execute(int index, vector<string>& tokens, unordered_map<str
     }
     string ip = tokens[index];
     string port = tokens[index+1];
-    stack<string>* sta = SingleMapOfVar::getStack();
-    sta->push(port);
+    queue<string>* sta = SingleMapOfVar::getStack();
     sta->push(ip);
+    sta->push(port);
     //int numOfPort = stoi(port);
     std::thread thread1(client1);
     //client(ip, numOfPort, variables);

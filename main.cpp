@@ -137,6 +137,9 @@ int main(int args, char* argv[]) {
     unordered_map<string,Variable> mapOfVar;
     SingleMapOfVar::setMap(mapOfVar);
     while (index <arr.size()) {
+        if(index==177) {
+            //cout<<" "<<endl;
+        }
         index += parser(index, arr, mapOfVar);
     }
     SingleMapOfVar::setBool(true);
